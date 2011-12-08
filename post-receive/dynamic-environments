@@ -31,7 +31,7 @@ $stdin.each_line do |line|
   # dangerous characters
   branchname = refname.sub(%r{^refs/heads/(.*$)}) { $1 }
   if branchname =~ /[\W-]/
-    puts %Q{Branch "#{branch}" contains non-word characters, ignoring it.}
+    puts %Q{Branch "#{branchname}" contains non-word characters, ignoring it.}
     next
   end
 
