@@ -10,6 +10,13 @@ ENVIRONMENT_BASEDIR = "/etc/puppet/environments"
 # such as git@git.host:puppet.git
 SOURCE_REPOSITORY = File.expand_path(ENV['GIT_DIR'])
 
+# Mapping of branches to directories.  In many cases, the master branch is 
+# checked out to the 'development' environment.
+BRANCH_MAP = {
+# This will clone/pull the master branch into the development puppet environment
+#    "master" => "development",
+}
+
 # The git_dir environment variable will override the --git-dir, so we remove it
 # to allow us to create new directories cleanly.
 ENV.delete('GIT_DIR')
@@ -31,11 +38,19 @@ $stdin.each_line do |line|
   # dangerous characters
   branchname = refname.sub(%r{^refs/heads/(.*$)}) { $1 }
   if branchname =~ /[\W-]/
-    puts %Q{Branch "#{branch}" contains non-word characters, ignoring it.}
+    puts %Q{Branch "#{branchname}" contains non-word characters, ignoring it.}
     next
   end
 
   environment_path = "#{ENVIRONMENT_BASEDIR}/#{branchname}"
+
+  if BRANCH_MAP[branchname] != nil
+    environment_name = BRANCH_MAP[branchname]
+    environment_path = "#{ENVIRONMENT_BASEDIR}/#{BRANCH_MAP[branchname]}"
+  else
+    environment_name = branchname
+    environment_path = "#{ENVIRONMENT_BASEDIR}/#{branchname}"
+  end
 
   if newrev =~ /^0+$/
     # We've received a push with a null revision, something like 000000000000,
@@ -52,14 +67,14 @@ $stdin.each_line do |line|
       # Update an existing environment. We do a fetch and then reset in the
       # case that someone did a force push to a branch.
       
-      puts "Updating existing environment #{branchname}"
+      puts "Updating existing environment #{environment_name}"
       Dir.chdir environment_path
       %x{git fetch --all}
       %x{git reset --hard "origin/#{branchname}"}
     else 
       # Instantiate a new environment from the current repository.
       
-      puts "Creating new environment #{branchname}"
+      puts "Creating new environment #{environment_name}"
       %x{git clone #{SOURCE_REPOSITORY} #{environment_path} --branch #{branchname}}
     end
   end
