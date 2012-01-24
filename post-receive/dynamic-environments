@@ -42,8 +42,6 @@ $stdin.each_line do |line|
     next
   end
 
-  environment_path = "#{ENVIRONMENT_BASEDIR}/#{branchname}"
-
   if BRANCH_MAP[branchname] != nil
     environment_name = BRANCH_MAP[branchname]
     environment_path = "#{ENVIRONMENT_BASEDIR}/#{BRANCH_MAP[branchname]}"
