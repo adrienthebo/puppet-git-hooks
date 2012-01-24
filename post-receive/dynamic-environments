@@ -53,7 +53,7 @@ $stdin.each_line do |line|
   if newrev =~ /^0+$/
     # We've received a push with a null revision, something like 000000000000,
     # which means that we should delete the given branch.
-    puts "Deleting existing environment #{branchname}"
+    puts "Deleting existing environment #{environment_name}"
     if File.directory? environment_path
       FileUtils.rm_rf environment_path, :secure => true
     end
