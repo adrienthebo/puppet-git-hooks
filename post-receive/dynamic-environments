@@ -13,8 +13,8 @@ SOURCE_REPOSITORY = File.expand_path(ENV['GIT_DIR'])
 # Mapping of branches to directories.  In many cases, the master branch is 
 # checked out to the 'development' environment.
 BRANCH_MAP = {
-# This will clone/pull the master branch into the development puppet environment
-#    "master" => "development",
+  # This will clone/pull the master branch into the development puppet environment
+  # "master" => "development",
 }
 
 # The git_dir environment variable will override the --git-dir, so we remove it
@@ -62,21 +62,20 @@ $stdin.each_line do |line|
   else
     # We have been given a branch that needs to be created or updated. If the
     # environment exists, update it. Else, create it.
-    
+
     if File.directory? environment_path
       # Update an existing environment. We do a fetch and then reset in the
       # case that someone did a force push to a branch.
-      
+
       puts "Updating existing environment #{environment_name}"
       Dir.chdir environment_path
       %x{git fetch --all}
       %x{git reset --hard "origin/#{branchname}"}
-    else 
+    else
       # Instantiate a new environment from the current repository.
-      
+
       puts "Creating new environment #{environment_name}"
       %x{git clone #{SOURCE_REPOSITORY} #{environment_path} --branch #{branchname}}
     end
   end
 end
-
