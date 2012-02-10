@@ -75,5 +75,12 @@ $stdin.each_line do |line|
       puts "Creating new environment #{environment_name}"
       %x{git clone #{SOURCE_REPOSITORY} #{environment_path} --branch #{branchname}}
     end
+
+    # Instantiate and update submodules
+    if File.exists? environment_path + '/.gitmodules'
+      puts %Q{Found submodules in #{environment_name}, recursively updating.}
+      Dir.chdir environment_path
+      %x{git submodule update --init --recursive}
+    end
   end
 end
