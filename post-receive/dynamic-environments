@@ -13,8 +13,8 @@ SOURCE_REPOSITORY = File.expand_path(ENV['GIT_DIR'])
 # Mapping of branches to directories.  In many cases, the master branch is 
 # checked out to the 'development' environment.
 BRANCH_MAP = {
-# This will clone/pull the master branch into the development puppet environment
-#    "master" => "development",
+  # This will clone/pull the master branch into the development puppet environment
+  # "master" => "development",
 }
 
 # The git_dir environment variable will override the --git-dir, so we remove it
@@ -37,12 +37,10 @@ $stdin.each_line do |line|
   # format refs/heads/<branch>, and make sure that it doesn't have any possibly
   # dangerous characters
   branchname = refname.sub(%r{^refs/heads/(.*$)}) { $1 }
-  if branchname =~ /[\W-]/
+  if branchname =~ /[\W]/
     puts %Q{Branch "#{branchname}" contains non-word characters, ignoring it.}
     next
   end
-
-  environment_path = "#{ENVIRONMENT_BASEDIR}/#{branchname}"
 
   if BRANCH_MAP[branchname] != nil
     environment_name = BRANCH_MAP[branchname]
@@ -55,28 +53,27 @@ $stdin.each_line do |line|
   if newrev =~ /^0+$/
     # We've received a push with a null revision, something like 000000000000,
     # which means that we should delete the given branch.
-    puts "Deleting existing environment #{branchname}"
+    puts "Deleting existing environment #{environment_name}"
     if File.directory? environment_path
       FileUtils.rm_rf environment_path, :secure => true
     end
   else
     # We have been given a branch that needs to be created or updated. If the
     # environment exists, update it. Else, create it.
-    
+
     if File.directory? environment_path
       # Update an existing environment. We do a fetch and then reset in the
       # case that someone did a force push to a branch.
-      
+
       puts "Updating existing environment #{environment_name}"
       Dir.chdir environment_path
       %x{git fetch --all}
       %x{git reset --hard "origin/#{branchname}"}
-    else 
+    else
       # Instantiate a new environment from the current repository.
-      
+
       puts "Creating new environment #{environment_name}"
       %x{git clone #{SOURCE_REPOSITORY} #{environment_path} --branch #{branchname}}
     end
   end
 end
-
