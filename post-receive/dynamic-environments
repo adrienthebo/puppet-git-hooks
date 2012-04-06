@@ -17,6 +17,9 @@ BRANCH_MAP = {
   # "master" => "development",
 }
 
+# Set this to a group the puppet user is a member of
+PUPPET_GROUP = "puppet"
+
 # The git_dir environment variable will override the --git-dir, so we remove it
 # to allow us to create new directories cleanly.
 ENV.delete('GIT_DIR')
@@ -86,5 +89,9 @@ $stdin.each_line do |line|
       puts "Creating new environment #{environment_name}"
       %x{git clone --recursive #{SOURCE_REPOSITORY} #{environment_path} --branch #{branchname}}
     end
+
+    #Make sure the puppet user is able to read the environment
+    %x{chmod -R g+rx #{environment_path}}
+    %x{chgrp -R #{PUPPET_GROUP} #{environment_path}}
   end
 end
