@@ -20,6 +20,9 @@ BRANCH_MAP = {
 # Set this to a group the puppet user is a member of
 PUPPET_GROUP = "puppet"
 
+# Set this to the octal mode the environment should have
+ENVIRONMENT_MODE = 0750
+
 # The git_dir environment variable will override the --git-dir, so we remove it
 # to allow us to create new directories cleanly.
 ENV.delete('GIT_DIR')
@@ -91,7 +94,8 @@ $stdin.each_line do |line|
     end
 
     #Make sure the puppet user is able to read the environment
-    %x{chmod -R g+rx #{environment_path}}
-    %x{chgrp -R #{PUPPET_GROUP} #{environment_path}}
+    FileUtils.chown_R nil, PUPPET_GROUP, environment_path
+    FileUtils.chmod_R ENVIRONMENT_MODE, environment_path
+
   end
 end
