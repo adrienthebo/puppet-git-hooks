@@ -39,12 +39,10 @@ end
 $stdin.each_line do |line|
   oldrev, newrev, refname = line.split(" ")
 
-  # Determine the branch name from the refspec we're received, which is in the
-  # format refs/heads/<branch>, and make sure that it doesn't have any possibly
-  # dangerous characters
+  # Check if the branch name is valid.
   branchname = refname.sub(%r{^refs/heads/(.*$)}) { $1 }
-  if branchname =~ /[\W]/
-    puts %Q{Branch "#{branchname}" contains non-word characters, ignoring it.}
+  if ! system('git check-ref-format --branch "#{branchname}"') || $?.exitstatus > 0
+    puts %Q{Branchname "#{branchname}" is not valid.} 
     next
   end
 
